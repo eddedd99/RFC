@@ -1,0 +1,483 @@
+'Ultimas Actualizaciones:
+'07-Mar-2016: Se hace una corrección al apellido materno, ya que marcaba error si el apaterno era compuesto, ejemplo=DE LA FUENTE
+'04-Nov-2016: Se corrige un error en el ap.paterno, ya que repetia la primera vocal, ej: ESPARZA = EE debe ser EA
+'
+'Creado por: edcruces99@gmail.com
+'V1.0: 07/Mar/2016
+'--------------------------------------------------------------------------------------------------------------------------------
+Public Function CalculaRFC(Nombres_Aux As String, Apaterno_Aux As String, AMaterno_Aux As String, FechaNacimiento_Aux As String)
+        
+        Dim RFC_OUT As String
+        Dim strNombres As String
+        Dim strApaterno As String
+        Dim strAmaterno As String
+        Dim strT_NomTot As String
+        Dim strNombre1 As String 'Primer Nombre
+        Dim strNombre2 As String 'Demas Nombres
+        Dim strNombres_longitud As String 'Longitud de Todos Nombres
+        Dim strNombre1_longitud As String 'Longitud de Primer Nombre mas un espacio
+        Dim strApaterno1 As String 'Primer Nombre
+        Dim strApaterno2 As String 'Demas Nombres
+        Dim intApaterno_Longitud As Integer 'Longitud de Todos Nombres
+        Dim intApaterno1_Longitud As Integer 'Longitud de Primer Nombre mas un espacio
+        Dim strAmaterno1 As String 'Primer Nombre
+        Dim strAmaterno2 As String 'Demas Nombres
+        Dim intAmaterno_longitud As Integer 'Longitud de Todos Nombres
+        Dim intAmaterno1_longitud As Integer 'Longitud de Primero Nombre
+        Dim intVarLoops As Integer 'Variable para los loops
+        Dim strRFC As String 'RFC
+        Dim strT_NomNum As String 'Nombre Numerico
+        Dim intT_Suma As Integer
+        Dim intT_Divid As Integer 'Dividendo
+        Dim intT_Mod As Integer 'MOD de la división
+        Dim strT_HomoClv As String 'Homoclave
+        Dim intT_Numero As Integer 'Numero ASC asignado a un caracter
+        Dim intT_Parcial As Integer 'Acumulado suma caracteres del RFC
+        '--------------------------------------
+        
+        'Nombres_Aux = "JUAN CARLOS"
+        'Apaterno_Aux = "VALDEZ"
+        'AMaterno_Aux = "PEREA"
+        'FechaNacimiento_Aux = "28/03/1985"
+        'FechaNacimiento_Aux = Format(CDate(FechaNacimiento_Aux), "MM/dd/yyyy")
+        
+                
+        'Inicializa Variables
+        strNombres = Trim(Nombres_Aux)
+        strApaterno = Trim(Apaterno_Aux)
+        strAmaterno = Trim(AMaterno_Aux)
+
+        strT_NomTot = strApaterno & " " & strAmaterno & " " & strNombres
+
+        'Procesar Nombres de Pila
+        intVarLoops = 0
+        Do While intVarLoops <> 1 '[1]
+
+            strNombres_longitud = Len(strNombres)
+            strNombre1_longitud = InStr(strNombres, " ")
+
+            If strNombre1_longitud = 0 Then
+                strNombre1_longitud = strNombres_longitud
+            End If
+
+            strNombre1 = RTrim(Left(strNombres, strNombre1_longitud))
+            strNombre2 = LTrim(Right(strNombres, strNombres_longitud - strNombre1_longitud))
+
+            'Se quitan los nombres de Jose, Maria y sus abreviaturas.
+            If (strNombre1 = "JOSE" Or _
+               strNombre1 = "MARIA" Or _
+               strNombre1 = "MA." Or _
+               strNombre1 = "MA" Or _
+               strNombre1 = "DE" Or _
+               strNombre1 = "LA" Or _
+               strNombre1 = "LAS" Or _
+               strNombre1 = "MC" Or _
+               strNombre1 = "VON" Or _
+               strNombre1 = "DEL" Or _
+               strNombre1 = "LOS" Or _
+               strNombre1 = "Y" Or _
+               strNombre1 = "MAC" Or _
+               strNombre1 = "VAN") And _
+               (strNombre2 <> "") Then
+                strNombres = strNombre2
+            Else
+                intVarLoops = 1
+            End If
+
+        Loop '[1]
+
+        'Procesamos apellidos Paterno en un loop
+        intVarLoops = 0
+        Do While intVarLoops <> 1 '[2]
+            intApaterno_Longitud = Len(Apaterno_Aux)
+            intApaterno1_Longitud = InStr(Apaterno_Aux, " ")
+
+            If intApaterno1_Longitud = 0 Then
+                intApaterno1_Longitud = intApaterno_Longitud
+            End If
+
+            strApaterno1 = RTrim(Left(Apaterno_Aux, intApaterno1_Longitud))
+            strApaterno2 = LTrim(Right(Apaterno_Aux, intApaterno_Longitud - intApaterno1_Longitud))
+
+            'Se quitan los sufijos
+            If (strApaterno1 = "DE" Or _
+           strApaterno1 = "LA" Or _
+           strApaterno1 = "LAS" Or _
+           strApaterno1 = "MC" Or _
+           strApaterno1 = "VON" Or _
+           strApaterno1 = "DEL" Or _
+           strApaterno1 = "LOS" Or _
+           strApaterno1 = "Y" Or _
+           strApaterno1 = "MAC" Or _
+           strApaterno1 = "VAN") And _
+           (strApaterno2 <> "") Then
+                strApaterno = strApaterno2
+                Apaterno_Aux = strApaterno
+            Else
+                intVarLoops = 1
+            End If
+        Loop '[2]
+
+        'Procesamos apellidos Materno en un loop
+        intVarLoops = 0
+        Do While intVarLoops <> 1 '[3]
+
+            intAmaterno_longitud = Len(AMaterno_Aux)
+            intAmaterno1_longitud = InStr(AMaterno_Aux, " ")
+
+            If intAmaterno1_longitud = 0 Then
+                intAmaterno1_longitud = intAmaterno_longitud
+            End If
+
+            strAmaterno1 = RTrim(Left(AMaterno_Aux, intAmaterno1_longitud))
+            strAmaterno2 = LTrim(Right(AMaterno_Aux, intAmaterno_longitud - intAmaterno1_longitud))
+
+            'Se quitan los sufijos
+            If (strAmaterno1 = "DE" Or _
+           strAmaterno1 = "LA" Or _
+           strAmaterno1 = "LAS" Or _
+           strAmaterno1 = "MC" Or _
+           strAmaterno1 = "VON" Or _
+           strAmaterno1 = "DEL" Or _
+           strAmaterno1 = "LOS" Or _
+           strAmaterno1 = "Y" Or _
+           strAmaterno1 = "MAC" Or _
+           strAmaterno1 = "VAN") And _
+           (strAmaterno2 <> "") Then
+                strAmaterno = strAmaterno2
+                AMaterno_Aux = strAmaterno
+            Else
+                intVarLoops = 1
+            End If
+
+        Loop '[3]d
+
+        'Se obtiene el primer apellido de la primer letra
+        'y la primer vocal interna
+
+        strRFC = Left(strApaterno1, 1)
+        intApaterno1_Longitud = Len(strApaterno1)
+        intVarLoops = 1 'Empieza en uno por la primera letra se la va a saltar
+
+        Do While intApaterno1_Longitud > intVarLoops '[4]
+            intVarLoops = intVarLoops + 1
+              
+             If Mid(strApaterno1, intVarLoops, 1) = "A" Or _
+                Mid(strApaterno1, intVarLoops, 1) = "E" Or _
+                Mid(strApaterno1, intVarLoops, 1) = "I" Or _
+                Mid(strApaterno1, intVarLoops, 1) = "O" Or _
+                Mid(strApaterno1, intVarLoops, 1) = "U" Then
+                
+                strRFC = RTrim(strRFC) & Mid(strApaterno1, intVarLoops, 1)
+                intVarLoops = intApaterno1_Longitud
+             End If
+        Loop '[4]
+
+        'Se obtiene la primera letra del Apellido Materno
+        'Si no tiene Apellido Materno se pone una X
+        'Si no tiene Apellido Materno le pones la primer letra del Apaterno en el RFC
+
+        If Trim(strAmaterno1) = "" Then
+            strRFC = RTrim(strRFC) & Mid(strApaterno1, 0, 1)
+        Else
+            If (strAmaterno1 = "DE" Or _
+                strAmaterno1 = "LA" Or _
+                strAmaterno1 = "LAS" Or _
+                strAmaterno1 = "MC" Or _
+                strAmaterno1 = "VON" Or _
+                strAmaterno1 = "DEL" Or _
+                strAmaterno1 = "LOS" Or _
+                strAmaterno1 = "Y" Or _
+                strAmaterno1 = "MAC" Or _
+                strAmaterno1 = "VAN") And _
+                (strAmaterno2 <> "") Then
+                strRFC = Trim(strRFC) & Mid(strAmaterno2, 1, 1)
+            Else
+                strRFC = Trim(strRFC) & Mid(strAmaterno1, 1, 1)
+            End If
+        End If
+
+        'Se le agrega la primera letra del nombre
+        strRFC = RTrim(strRFC) & Mid(strNombre1, 1, 1)
+
+        'Se le agrega la fecha de nacimiento
+        strRFC = RTrim(strRFC) & Format(FechaNacimiento_Aux, "yyMMdd")
+
+        'Homoclave
+        strT_NomNum = "0"
+
+        'Saca nombre numerico
+        intVarLoops = 1
+
+        Do While intVarLoops <= Len(strT_NomTot) '[5]
+            Select Case Mid(strT_NomTot, intVarLoops, 1)
+                Case "A"
+                    strT_NomNum = Trim(strT_NomNum) & "11"
+                Case "B"
+                    strT_NomNum = Trim(strT_NomNum) & "12"
+                Case "C"
+                    strT_NomNum = Trim(strT_NomNum) & "13"
+                Case "D"
+                    strT_NomNum = Trim(strT_NomNum) & "14"
+                Case "E"
+                    strT_NomNum = Trim(strT_NomNum) & "15"
+                Case "F"
+                    strT_NomNum = Trim(strT_NomNum) & "16"
+                Case "G"
+                    strT_NomNum = Trim(strT_NomNum) & "17"
+                Case "H"
+                    strT_NomNum = Trim(strT_NomNum) & "18"
+                Case "I"
+                    strT_NomNum = Trim(strT_NomNum) & "19"
+                Case "J"
+                    strT_NomNum = Trim(strT_NomNum) & "21"
+                Case "K"
+                    strT_NomNum = Trim(strT_NomNum) & "22"
+                Case "L"
+                    strT_NomNum = Trim(strT_NomNum) & "23"
+                Case "M"
+                    strT_NomNum = Trim(strT_NomNum) & "24"
+                Case "N"
+                    strT_NomNum = Trim(strT_NomNum) & "25"
+                Case "O"
+                    strT_NomNum = Trim(strT_NomNum) & "26"
+                Case "P"
+                    strT_NomNum = Trim(strT_NomNum) & "27"
+                Case "Q"
+                    strT_NomNum = Trim(strT_NomNum) & "28"
+                Case "R"
+                    strT_NomNum = Trim(strT_NomNum) & "29"
+                Case "S"
+                    strT_NomNum = Trim(strT_NomNum) & "32"
+                Case "T"
+                    strT_NomNum = Trim(strT_NomNum) & "33"
+                Case "U"
+                    strT_NomNum = Trim(strT_NomNum) & "34"
+                Case "V"
+                    strT_NomNum = Trim(strT_NomNum) & "35"
+                Case "W"
+                    strT_NomNum = Trim(strT_NomNum) & "36"
+                Case "X"
+                    strT_NomNum = Trim(strT_NomNum) & "37"
+                Case "Y"
+                    strT_NomNum = Trim(strT_NomNum) & "38"
+                Case "Z"
+                    strT_NomNum = Trim(strT_NomNum) & "39"
+                Case "0"
+                    strT_NomNum = Trim(strT_NomNum) & "00"
+                Case "1"
+                    strT_NomNum = Trim(strT_NomNum) & "01"
+                Case "2"
+                    strT_NomNum = Trim(strT_NomNum) & "02"
+                Case "3"
+                    strT_NomNum = Trim(strT_NomNum) & "03"
+                Case "4"
+                    strT_NomNum = Trim(strT_NomNum) & "04"
+                Case "5"
+                    strT_NomNum = Trim(strT_NomNum) & "05"
+                Case "6"
+                    strT_NomNum = Trim(strT_NomNum) & "06"
+                Case "7"
+                    strT_NomNum = Trim(strT_NomNum) & "07"
+                Case "8"
+                    strT_NomNum = Trim(strT_NomNum) & "08"
+                Case "9"
+                    strT_NomNum = Trim(strT_NomNum) & "09"
+                Case "&"
+                    strT_NomNum = Trim(strT_NomNum) & "10"
+                Case "Ñ"
+                    strT_NomNum = Trim(strT_NomNum) & "10"
+                Case Else
+                    strT_NomNum = Trim(strT_NomNum) & "00"
+            End Select
+            intVarLoops = intVarLoops + 1
+        Loop '[5]
+
+        intVarLoops = 1
+        intT_Suma = 0
+
+        Do While intVarLoops + 1 <= Len(strT_NomNum) '[6]
+            intT_Suma = intT_Suma + _
+                        ((CInt(Mid(strT_NomNum, intVarLoops, 1))) * 10 + _
+                        CInt(Mid(strT_NomNum, intVarLoops + 1, 1))) * _
+                        CInt(Mid(strT_NomNum, intVarLoops + 1, 1))
+            intVarLoops = intVarLoops + 1
+        Loop '[6]
+
+        Dim strT_TextoSuma As String
+        
+        'Se toman los 3 ultimos digitos
+        strT_TextoSuma = ""
+        strT_TextoSuma = strT_TextoSuma & Mid(CStr(intT_Suma), Len(CStr(intT_Suma)) - 2, 1)
+        strT_TextoSuma = strT_TextoSuma & Mid(CStr(intT_Suma), Len(CStr(intT_Suma)) - 1, 1)
+        strT_TextoSuma = strT_TextoSuma & Mid(CStr(intT_Suma), Len(CStr(intT_Suma)) - 0, 1)
+                        
+        intT_Divid = CInt(strT_TextoSuma)
+        intT_Mod = intT_Divid Mod 34
+        intT_Divid = (intT_Divid - intT_Mod) / 34
+
+        'Checar cociente y residuo
+        intVarLoops = 0
+        Dim intValor As Integer
+
+        Do While intVarLoops <= 1 '[7]
+            Select Case intVarLoops
+                Case 0
+                    intValor = intT_Divid
+                Case Else
+                    intValor = intT_Mod
+            End Select
+
+            Select Case intValor
+                Case 0
+                    strT_HomoClv = "1"
+                Case 1
+                    strT_HomoClv = "2"
+                Case 2
+                    strT_HomoClv = "3"
+                Case 3
+                    strT_HomoClv = "4"
+                Case 4
+                    strT_HomoClv = "5"
+                Case 5
+                    strT_HomoClv = "6"
+                Case 6
+                    strT_HomoClv = "7"
+                Case 7
+                    strT_HomoClv = "8"
+                Case 8
+                    strT_HomoClv = "9"
+                Case 9
+                    strT_HomoClv = "A"
+                Case 10
+                    strT_HomoClv = "B"
+                Case 11
+                    strT_HomoClv = "C"
+                Case 12
+                    strT_HomoClv = "D"
+                Case 13
+                    strT_HomoClv = "E"
+                Case 14
+                    strT_HomoClv = "F"
+                Case 15
+                    strT_HomoClv = "G"
+                Case 16
+                    strT_HomoClv = "H"
+                Case 17
+                    strT_HomoClv = "I"
+                Case 18
+                    strT_HomoClv = "J"
+                Case 19
+                    strT_HomoClv = "K"
+                Case 20
+                    strT_HomoClv = "L"
+                Case 21
+                    strT_HomoClv = "M"
+                Case 22
+                    strT_HomoClv = "N"
+                Case 23
+                    strT_HomoClv = "P"
+                Case 24
+                    strT_HomoClv = "Q"
+                Case 25
+                    strT_HomoClv = "R"
+                Case 26
+                    strT_HomoClv = "S"
+                Case 27
+                    strT_HomoClv = "T"
+                Case 28
+                    strT_HomoClv = "U"
+                Case 29
+                    strT_HomoClv = "V"
+                Case 30
+                    strT_HomoClv = "W"
+                Case 31
+                    strT_HomoClv = "X"
+                Case 32
+                    strT_HomoClv = "Y"
+                Case 33
+                    strT_HomoClv = "Z"
+            End Select
+            intVarLoops = intVarLoops + 1
+
+            'Incluir la parte de la homoclave
+            strRFC = Trim(strRFC) & Trim(strT_HomoClv)
+
+        Loop '[7]
+
+        'Obtener el digito verificador
+
+        'strRFC = "GODE561231GR"
+        intVarLoops = 1
+        intT_Parcial = 0
+
+        Do While intVarLoops <= 12
+
+            Select Case Mid(strRFC, intVarLoops, 1)
+                Case "A": intT_Numero = 10
+                Case "B": intT_Numero = 11
+                Case "C": intT_Numero = 12
+                Case "D": intT_Numero = 13
+                Case "E": intT_Numero = 14
+                Case "F": intT_Numero = 15
+                Case "G": intT_Numero = 16
+                Case "H": intT_Numero = 17
+                Case "I": intT_Numero = 18
+                Case "J": intT_Numero = 19
+                Case "K": intT_Numero = 20
+                Case "L": intT_Numero = 21
+                Case "M": intT_Numero = 22
+                Case "N": intT_Numero = 23
+                Case "&": intT_Numero = 24
+                Case "O": intT_Numero = 25
+                Case "P": intT_Numero = 26
+                Case "Q": intT_Numero = 27
+                Case "R": intT_Numero = 28
+                Case "S": intT_Numero = 29
+                Case "T": intT_Numero = 30
+                Case "U": intT_Numero = 31
+                Case "V": intT_Numero = 32
+                Case "W": intT_Numero = 33
+                Case "X": intT_Numero = 34
+                Case "Y": intT_Numero = 35
+                Case "Z": intT_Numero = 36
+                Case "0": intT_Numero = 0
+                Case "1": intT_Numero = 1
+                Case "2": intT_Numero = 2
+                Case "3": intT_Numero = 3
+                Case "4": intT_Numero = 4
+                Case "5": intT_Numero = 5
+                Case "6": intT_Numero = 6
+                Case "7": intT_Numero = 7
+                Case "8": intT_Numero = 8
+                Case "9": intT_Numero = 9
+                Case " ": intT_Numero = 37
+                Case Else: intT_Numero = 0
+            End Select
+
+            'Contabilizar el nuevo digito
+            intT_Parcial = intT_Parcial + (intT_Numero * (14 - intVarLoops))
+            
+            intVarLoops = intVarLoops + 1
+        Loop
+
+        intT_Mod = Round(intT_Parcial Mod 11, 1)
+
+        If intT_Mod = 0 Then
+            strRFC = Trim(strRFC) + "0"
+        Else
+            intT_Parcial = 11 - intT_Mod
+        End If
+
+        If intT_Parcial = 10 Then
+            strRFC = Trim(strRFC) & "A"
+        Else
+            strRFC = Trim(strRFC) & CStr(intT_Parcial)
+        End If
+
+        RFC_OUT = Mid(strRFC, 1, 13)
+        CalculaRFC = RFC_OUT
+
+    End Function
+
+
